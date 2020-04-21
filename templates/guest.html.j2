@@ -9,8 +9,33 @@
 
             // Handlers for the different types of hands.
             var is_channel_hand_up = {};
+
+            socket.on('data_update', function(data, cb) {
+                console.log(data);
+                for(var x in data){
+                   var channel = data[x];
+                   var found = false;
+                   for(var y in data[x]["current_list"]){
+                       var user = data[x]["current_list"][y];
+                       console.log(user)
+                       console.log("{{session['user'].name}}")
+                       console.log(channel)
+                       if (user == "{{session['user'].name}}" ) {
+                          found = true;
+                       }
+                    }
+                    if (found) {
+                       document.getElementById(channel.channel_id).innerText = "Lower "+ channel.name;
+                       is_channel_hand_up[channel.channel_id] = true;
+                       found = false;
+                    } else {
+                        document.getElementById(channel.channel_id).innerText = "Raise "+ channel.name;
+                        is_channel_hand_up[channel.channel_id] = false;
+                    }
+                }
+            });
+
             {% for channel in room.get_channels() %}
-                is_channel_hand_up["{{channel.id}}"] = false;
                 document.getElementById('{{channel.id}}').addEventListener("click", function(){
                     if(is_channel_hand_up["{{channel.id}}"]){
                         // The hand is up  -> we should lower it 
