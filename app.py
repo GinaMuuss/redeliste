@@ -61,6 +61,9 @@ class HandList():
     def to_json(self):
         return {"name": self.name, "current_list": [self.user_names[x] for x in self.current_list], "is_frozen": self.is_frozen, "channel_id": str(self.channel_id)}
 
+    def to_admin_json(self):
+        return {"name": self.name, "current_list": [self.user_names[x] for x in self.current_list], "current_id_list": self.current_list, "is_frozen": self.is_frozen, "channel_id": str(self.channel_id)}
+
 
 class AdminRoom(Namespace):
     def __init__(self, room):
@@ -78,6 +81,14 @@ class AdminRoom(Namespace):
     def on_connect(self):
         print("admin connected")
         self.room.trigger_update_admin()
+
+    def on_remove_raise(self, data):
+        user = User("")
+        user.id = uuid.UUID(data["user_id"])
+        print("session force lower", user.id)
+        self.room.current_hands[uuid.UUID(data["channel_id"])].remove_hand(user)
+        self.room.trigger_update_admin()
+        self.room.trigger_update_guest()
 
 
 class Room(Namespace):
@@ -106,16 +117,17 @@ class Room(Namespace):
         print("session raise", user.name)
         self.current_hands[uuid.UUID(data["channel_id"])].add_hand(user)
         self.trigger_update_admin()
+        self.trigger_update_guest()
 
     def on_lower_hand_event(self, data):
         user = User.from_json(session["user"])
         print("session lower", user.name)
         self.current_hands[uuid.UUID(data["channel_id"])].remove_hand(user)
         self.trigger_update_admin()
+        self.trigger_update_guest()
 
     def trigger_update_admin(self):
-        self.admin_room.broadcast_to_admin(
-            [self.current_hands[x].to_json() for x in self.current_hands])
+        self.admin_room.broadcast_to_admin([self.current_hands[x].to_admin_json() for x in self.current_hands])
 
     def trigger_update_guest(self):
          self.emit("data_update", [self.current_hands[x].to_json() for x in self.current_hands], namespace=self.namespace)
@@ -132,7 +144,10 @@ class Room(Namespace):
 
 @app.route('/')
 def index():
-    return render_template('index.html.j2')
+    if "user" in session:
+        return render_template('index.html.j2')
+    else:
+        return render_template('guest_login.html.j2', room_id="index_placeholder")
 
 
 @app.route('/guest/<room_id>')
@@ -141,7 +156,7 @@ def guest_room_id(room_id):
         # user is registered
         uu = uuid.UUID(room_id)
         if uu in rooms:
-            return render_template("guest.html.j2", room=rooms[uu])
+            return render_template("admin.html.j2", room=rooms[uu], admin=False)
         else:
             return "Error, room not found", 404
     else:
@@ -152,15 +167,14 @@ def guest_room_id(room_id):
 @app.route('/guest', methods=['GET', 'POST'])
 def guest():
     if request.method == 'POST':
-        # register
+        user = User(request.form['name'])
+        session['user'] = user.to_json()
+
+        if request.form['room_id'] == "index_placeholder":
+            return redirect(url_for('index'))
         if uuid.UUID(request.form['room_id']) in rooms:
-            user = User(request.form['name'])
-            session['user'] = user.to_json()
             return redirect(url_for('guest_room_id', room_id=request.form['room_id']))
-        else:
-            return render_template('guest_login.html.j2')
-    else:
-        return render_template('guest_login.html.j2')
+    return render_template('guest_login.html.j2')
 
 
 @app.route('/admin/<room_id>')
@@ -173,7 +187,7 @@ def admin(room_id):
             room = rooms[x]
             break
     if room:
-        return render_template('admin.html.j2', room=room)
+        return render_template('admin.html.j2', room=room, admin=True)
     else:
         return "Error, room not found", 404
 
@@ -182,6 +196,7 @@ def admin(room_id):
 def admin_generate():
     room = Room(request.form['room_name'], request.form['channels'].split(","))
     return redirect(url_for('admin', room_id=room.admin_room.key))
+    
 
 
 if __name__ == '__main__':

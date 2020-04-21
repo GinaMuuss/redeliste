@@ -1,43 +1,60 @@
 {% extends "layout.html.j2" %}
 {% block head %}
     <script type="text/javascript" charset="utf-8">
+        var is_channel_hand_up = {};
+        var socket = undefined;
         document.addEventListener("DOMContentLoaded", function(){
+            {% if admin %}
+                // Connect to the Socket.IO server.
+                namespace = '/{{ room.admin_room.key }}';
+                socket = io(namespace);
 
-            // Connect to the Socket.IO server.
-            namespace = '/{{ room.admin_room.key }}';
-            var socket = io(namespace);
+                socket.on('data_update', function(data, cb) {
+                    update_user_state(data, '{{ session["user"]["name"] }}');
+                    update_channel_lists(data);
+                });
 
-            socket.on('data_update', function(data, cb) {
-                console.log(data);
-                for(var x in data){
-                    var channel = data[x];
-                    var sel = "#channel_" + channel.channel_id + " div.list-container" 
-                    var ele = document.querySelector(sel)
-                    var html  = "<ol>";
-                    for(var y in data[x]["current_list"]){
-                        var user = data[x]["current_list"][y];
-                        html += "<li>" + user + "</li>";
-                    }
-                    html += "</ol>";
-                    ele.innerHTML = html;
-                }
-                if(cb)
-                    cb();
-            });
+                user_namespace = '/{{ room.guest_key }}';
+                var socket_user = io(user_namespace);
+
+                {% for channel in room.get_channels() %}
+                    add_user_button(socket_user, '{{channel.id}}', '{{channel.name}}');
+                {%- endfor %}
+            {% else %}
+                // Connect to the Socket.IO server.
+                namespace = '/{{ room.guest_key }}';
+                socket = io(namespace);
+
+                socket.on('data_update', function(data, cb) {
+                    update_user_state(data, '{{ session["user"]["name"] }}');
+                    update_channel_lists(data);
+                });
+
+                {% for channel in room.get_channels() %}
+                    add_user_button(socket, '{{channel.id}}', '{{channel.name}}');
+                {%- endfor %}
+            {% endif %}
         });
     </script>
 {% endblock %}
 {% block body %}
     <h1>Your Room: {{ room.name }}</h1>
-    <!-- TODO: layout -->
-    <div id="room_details">
-        <a href="/admin/{{ room.admin_room.key }}">Admin Link</a>
+    {% if admin %}
+        <div id="room_details">
+            <a href="/admin/{{ room.admin_room.key }}">Admin Link</a>
 
-        <a href="/guest/{{ room.guest_key }}">Guest Link</a>
-    </div>
+            <a href="/guest/{{ room.guest_key }}">Guest Link</a>
+        </div>
+    {% else %}
+        <h2>Hi {{ session["user"].name }}</h2>
+    {% endif %}
     <div id="channel_details" class="channel-flex">
     {% for channel in room.get_channels() %}
-        <div id="channel_{{channel.id}}" class="channel-flex-item"><h3>{{channel.name}}</h3><div class="list-container"></div></div>
+        <div id="channel_{{channel.id}}" class="channel-flex-item">
+            <h3>{{channel.name}}</h3>
+            <div class="list-container"></div>
+            <button id="{{channel.id}}">Raise {{channel.name}}</button>
+        </div>
     {%- endfor %}
     </div>
 {% endblock %}

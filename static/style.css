@@ -68,3 +68,19 @@ a:link {
 a:visited {
     color: rgb(175, 35, 218);
 }
+
+ol li {
+    padding-bottom: 0.3em;
+    padding-left: 0.3em;
+    margin-bottom:  0.3em;
+    margin-left:  0.3em;
+}
+
+.close {
+    padding: 0.3em;
+    margin:  0.3em;
+}
+
+.close:hover {
+    background: #bbb;
+}
