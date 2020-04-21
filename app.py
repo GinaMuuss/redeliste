@@ -77,7 +77,7 @@ class AdminRoom(Namespace):
 
     def on_connect(self):
         print("admin connected")
-        self.room.trigger_update()
+        self.room.trigger_update_admin()
 
 
 class Room(Namespace):
@@ -105,23 +105,29 @@ class Room(Namespace):
         user = User.from_json(session["user"])
         print("session raise", user.name)
         self.current_hands[uuid.UUID(data["channel_id"])].add_hand(user)
-        self.trigger_update()
+        self.trigger_update_admin()
 
     def on_lower_hand_event(self, data):
         user = User.from_json(session["user"])
         print("session lower", user.name)
         self.current_hands[uuid.UUID(data["channel_id"])].remove_hand(user)
-        self.trigger_update()
+        self.trigger_update_admin()
 
-    def trigger_update(self):
+    def trigger_update_admin(self):
         self.admin_room.broadcast_to_admin(
             [self.current_hands[x].to_json() for x in self.current_hands])
 
+    def trigger_update_guest(self):
+         self.emit("data_update", [self.current_hands[x].to_json() for x in self.current_hands], namespace=self.namespace)
+
     def on_connect(self):
         print("con")
+        self.trigger_update_guest()
+
 
     def on_disconnect(self):
         print("discon")
+
 
 
 @app.route('/')
