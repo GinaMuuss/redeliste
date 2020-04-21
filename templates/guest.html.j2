@@ -1,17 +1,11 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-    <title>Flask-SocketIO Test</title>
-    <script src="/static/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I="></script>
+{% extends "layout.html.j2" %}
+{% block head %}
     <script type="text/javascript" charset="utf-8">
         document.addEventListener("DOMContentLoaded", function(){
 
             // Connect to the Socket.IO server.
             namespace = '/{{ room.guest_key }}';
             var socket = io(namespace);
-//            socket.on('connect', function() {
-//              socket.emit('my_event', {data: 'I\'m connected!'});
-//            });
 
             // Handlers for the different types of hands.
             var is_channel_hand_up = {};
@@ -37,12 +31,11 @@
             {%- endfor %}
         });
     </script>
-</head>
-<body>
+{% endblock %}
+{% block body %}
     <h1>Hi {{ session["user"].name }}</h1>
     <h2>Send:</h2>
     {% for channel in room.get_channels() %}
         <button id="{{channel.id}}">Raise {{channel.name}}</button>
     {%- endfor %}
-</body>
-</html>
+{% endblock %}

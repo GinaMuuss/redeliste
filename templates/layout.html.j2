@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>RedeListe</title>
+    <script src="{{ url_for('static', filename='socket.io.js') }}"></script>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <script>
+    function dankMode(){
+        if(document.cookie.split(';').some((item) => item.includes('dank=1'))) {
+            console.log("Going to dank mode");
+            let root = document.documentElement;
+            root.style.setProperty('--main-bg-color', 'rgb(102, 221, 81)');
+            root.style.setProperty('--content-bg-color', 'rgb(255, 186, 59)');
+            root.style.setProperty('--text-color', 'rgb(206, 56, 219)');
+            root.style.setProperty('--font-family', '"Comic Sans MS", cursive, sans-serif');
+        }
+    }
+    document.addEventListener("DOMContentLoaded", dankMode);
+    document.addEventListener('keypress', function(e){
+        if(e.code == "KeyD" && e.shiftKey){
+            console.log("Leaving dank mode");
+            document.cookie = "dank=0;path=/;";
+        }
+        else if(e.code == "KeyD"){
+            document.cookie = "dank=1;path=/;";
+            dankMode();
+        }
+    });
+    </script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div id = "content">
+        {% block body %}{% endblock %}
+    </div>
+</body>
+</html>

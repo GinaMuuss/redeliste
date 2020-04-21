@@ -1,10 +1,5 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-    <title>Flask-SocketIO Test</title>
-    <script src="/static/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I="></script>
-</head>
-<body>
+{% extends "layout.html.j2" %}
+{% block body %}
     <h1>Flask-SocketIO Test</h1>
     <h2>Send:</h2>
     <form id="register" method="POST" action='/guest'>
@@ -18,5 +13,4 @@
         {% endif %}
         <input type="submit" value="Start">
     </form>
-</body>
-</html>
+{% endblock %}

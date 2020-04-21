@@ -1,17 +1,11 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-    <title>Flask-SocketIO Test</title>
-    <script src="/static/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I="></script>
-</head>
-<body>
+{% extends "layout.html.j2" %}
+{% block body %}
     <h1>Create new room</h1>
     <form id="emit" method="POST" action='/admin_generate'>
         <label for="room_name">Room name</label>
         <input type="text" name="room_name" id="room_name" placeholder="Room name">
         <label for="channels">Comma seperated list of channels</label>
         <input type="text" name="channels" id="channels" placeholder="Normal,Technische Anmerkung">
-        <input type="submit" value="create">
+        <input type="submit" value="Create Room">
     </form>
-</body>
-</html>
+{% endblock %}

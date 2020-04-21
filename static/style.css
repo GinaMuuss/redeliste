@@ -1,0 +1,70 @@
+:root {
+    --main-bg-color: rgb(34, 35, 42);
+    --content-bg-color: rgb(69, 70, 78);
+    --text-color: rgb(230, 232, 246);
+    --font-family: "Courier New", Courier, monospace;
+}
+
+/*:root {
+    --main-bg-color: rgb(102, 221, 81);
+    --content-bg-color: rgb(255, 186, 59);
+    --text-color: rgb(206, 56, 219);
+    --font-family: "Comic Sans MS", cursive, sans-serif;
+}*/
+
+body {
+    background-color: var(--main-bg-color);
+    font-family: var(--font-family);
+}
+#content {
+    max-width: 90em;
+    background-color: var(--content-bg-color);
+    padding: 2em;
+    min-height: 80vh;
+    margin-left: auto;
+    margin-right: auto;
+    align-content: center;
+    color: var(--text-color);
+}
+
+form{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+label {
+    flex: 1;
+    flex-basis: 40%;
+    margin-left: 2em;
+    margin-bottom: 2em;
+    /*margin-right: 2em;*/
+    padding-left: 2em;
+    /*padding-right: 2em;*/
+}
+
+input {
+    flex: 1;
+    flex-basis: 40%;
+    margin-left: 2em;
+    margin-right: 2em;
+    padding-left: 2em;
+    margin-bottom: 2em;
+    padding-right: 2em;
+}
+
+.channel-flex {
+    display: inline-flex;
+}
+
+.channel-flex-item {
+    margin: 1em;
+    display: block;
+}
+
+a:link {
+    color: rgb(0, 174, 255);
+}
+
+a:visited {
+    color: rgb(175, 35, 218);
+}

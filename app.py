@@ -45,7 +45,7 @@ class HandList():
         self.channel_id = uuid.uuid4()
 
     def add_hand(self, user):
-        if self.is_frozen:
+        if self.is_frozen or user.get_id() in self.current_list:
             return False
         self.user_names[user.get_id()] = user.name
         self.current_list.append(user.get_id())
@@ -126,7 +126,7 @@ class Room(Namespace):
 
 @app.route('/')
 def index():
-    return render_template('index.html.j2', async_mode=socketio.async_mode)
+    return render_template('index.html.j2')
 
 
 @app.route('/guest/<room_id>')
