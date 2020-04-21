@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Flask-SocketIO Test</title>
+    <script src="/static/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I="></script>
+</head>
+<body>
+    <h1>Flask-SocketIO Test</h1>
+    <h2>Send:</h2>
+    <form id="register" method="POST" action='/guest'>
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" placeholder="XXXDragonslayerXXX">
+        {% if room_id is defined and room_id %}
+            <input type="hidden" name="room_id" id="room_id" value="{{ room_id }}">
+        {% else %}
+            <label for="room_id">Room ID</label>
+            <input type="text" name="room_id" id="room_id">
+        {% endif %}
+        <input type="submit" value="Start">
+    </form>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Flask-SocketIO Test</title>
+    <script src="/static/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I="></script>
+    <script type="text/javascript" charset="utf-8">
+        document.addEventListener("DOMContentLoaded", function(){
+
+            // Connect to the Socket.IO server.
+            namespace = '/{{ room.guest_key }}';
+            var socket = io(namespace);
+//            socket.on('connect', function() {
+//              socket.emit('my_event', {data: 'I\'m connected!'});
+//            });
+
+            // Handlers for the different types of hands.
+            var is_channel_hand_up = {};
+            {% for channel in room.get_channels() %}
+                is_channel_hand_up["{{channel.id}}"] = false;
+                document.getElementById('{{channel.id}}').addEventListener("click", function(){
+                    if(is_channel_hand_up["{{channel.id}}"]){
+                        // The hand is up  -> we should lower it 
+                        socket.emit('lower_hand_event', {channel_id: '{{channel.id}}', });
+                        is_channel_hand_up["{{channel.id}}"] = false;
+                        document.getElementById("{{channel.id}}").innerText = "Raise {{channel.name}}";
+                        // TODO: maybe wait for confirmation
+                    }
+                    else{
+                        // The hand is down -> we should raise it
+                        socket.emit('raise_hand_event', {channel_id: '{{channel.id}}'});
+                        is_channel_hand_up["{{channel.id}}"] = true;
+                        document.getElementById("{{channel.id}}").innerText = "Lower {{channel.name}}";
+                        // TODO: maybe wait for confirmation
+                    }
+                    return false;
+                });
+            {%- endfor %}
+        });
+    </script>
+</head>
+<body>
+    <h1>Hi {{ session["user"].name }}</h1>
+    <h2>Send:</h2>
+    {% for channel in room.get_channels() %}
+        <button id="{{channel.id}}">Raise {{channel.name}}</button>
+    {%- endfor %}
+</body>
+</html>
