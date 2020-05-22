@@ -18,11 +18,12 @@
     }
     document.addEventListener("DOMContentLoaded", dankMode);
     document.addEventListener('keypress', function(e){
-        if(e.code == "KeyD" && e.shiftKey){
+        if(e.code == "KeyD" && e.shiftKey && document.cookie.split(';').some((item) => item.includes('dank=1'))){
             console.log("Leaving dank mode");
             document.cookie = "dank=0;path=/;";
+            location.reload();
         }
-        else if(e.code == "KeyD"){
+        else if(e.code == "KeyD" && e.shiftKey && document.cookie.split(';').some((item) => item.includes('dank=0'))){
             document.cookie = "dank=1;path=/;";
             dankMode();
         }
