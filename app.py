@@ -167,6 +167,8 @@ def guest_room_id(room_id):
 @app.route('/guest', methods=['GET', 'POST'])
 def guest():
     if request.method == 'POST':
+        if request.form['name'] == '':
+            return render_template('guest_login.html.j2')
         user = User(request.form['name'])
         session['user'] = user.to_json()
 
