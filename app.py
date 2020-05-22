@@ -159,7 +159,7 @@ def guest_room_id(room_id):
         # user is registered
         uu = uuid.UUID(room_id)
         if uu in rooms:
-            return render_template("admin.html.j2", room=rooms[uu], admin=False)
+            return render_template("main.html.j2", room=rooms[uu], admin=False)
         else:
             return "Error, room not found", 404
     else:
@@ -193,7 +193,7 @@ def admin(room_id):
             room = rooms[x]
             break
     if room:
-        return render_template('admin.html.j2', room=room, admin=True)
+        return render_template('main.html.j2', room=room, admin=True)
     else:
         return "Error, room not found", 404
 
