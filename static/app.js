@@ -2,16 +2,16 @@ function update_user_state(data, userid){
     for(var x in data){
         var channel = data[x];
         var found = false;
-        for(var y in data[x]["current_list"]){
-            var user = data[x]["current_list"][y];
-            if (user == userid ) { //todo: comparing the names is stupid, but sending all the ids is too...
+        for(var y in data[x]["current_id_list"]){
+            var user = data[x]["current_id_list"][y];
+            if (user == userid ) { 
                found = true;
+               break;
             }
          }
          if (found) {
             document.getElementById(channel.channel_id).innerText = "Lower "+ channel.name;
             is_channel_hand_up[channel.channel_id] = true;
-            found = false;
          } else {
              document.getElementById(channel.channel_id).innerText = "Raise "+ channel.name;
              is_channel_hand_up[channel.channel_id] = false;

@@ -10,7 +10,7 @@
                 socket = io(namespace);
 
                 socket.on('data_update', function(data, cb) {
-                    update_user_state(data, '{{ session["user"]["name"] }}');
+                    update_user_state(data, '{{ session["user"]["user_id"] }}');
                     update_channel_lists(data);
                 });
 
@@ -26,7 +26,7 @@
                 socket = io(namespace);
 
                 socket.on('data_update', function(data, cb) {
-                    update_user_state(data, '{{ session["user"]["name"] }}');
+                    update_user_state(data, '{{ session["user"]["user_id"] }}');
                     update_channel_lists(data);
                 });
 

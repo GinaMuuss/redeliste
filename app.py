@@ -15,24 +15,26 @@ socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
 rooms = {}
-
+users = {}
 
 class User():
     def __init__(self, name):
-        self.name = name
-        self.id = uuid.uuid4()
+        self.name = name.strip()
+        self.user_id = uuid.uuid4() # This identifyies the user
+        self.unique_id = uuid.uuid4() # This is the key only the user is supposed to have
 
     def get_id(self):
-        return str(self.id)
+        return str(self.user_id)
 
     def to_json(self):
-        return {"name": self.name, "id": self.id}
+        return {"name": self.name, "user_id": self.user_id, "unique_id": self.unique_id}
 
     @classmethod
     def from_json(cls, value):
         u = cls("")
-        u.name = value["name"]
-        u.id = value["id"]
+        u.name = value["name"].strip()
+        u.user_id = value["user_id"]
+        u.unique_id = value["unique_id"]
         return u
 
 
@@ -45,6 +47,8 @@ class HandList():
         self.channel_id = uuid.uuid4()
 
     def add_hand(self, user):
+        if users[user.get_id()].unique_id != user.unique_id:
+            return False
         if self.is_frozen or user.get_id() in self.current_list:
             return False
         self.user_names[user.get_id()] = user.name
@@ -52,6 +56,8 @@ class HandList():
         return True
 
     def remove_hand(self, user):
+        if users[user.get_id()].unique_id != user.unique_id:
+            return False
         if user.get_id() in self.current_list:
             self.current_list.remove(user.get_id())
             del self.user_names[user.get_id()]
@@ -59,9 +65,6 @@ class HandList():
         return False
 
     def to_json(self):
-        return {"name": self.name, "current_list": [self.user_names[x] for x in self.current_list], "is_frozen": self.is_frozen, "channel_id": str(self.channel_id)}
-
-    def to_admin_json(self):
         return {"name": self.name, "current_list": [self.user_names[x] for x in self.current_list], "current_id_list": self.current_list, "is_frozen": self.is_frozen, "channel_id": str(self.channel_id)}
 
 
@@ -127,7 +130,7 @@ class Room(Namespace):
         self.trigger_update_guest()
 
     def trigger_update_admin(self):
-        self.admin_room.broadcast_to_admin([self.current_hands[x].to_admin_json() for x in self.current_hands])
+        self.admin_room.broadcast_to_admin([self.current_hands[x].to_json() for x in self.current_hands])
 
     def trigger_update_guest(self):
          self.emit("data_update", [self.current_hands[x].to_json() for x in self.current_hands], namespace=self.namespace)
@@ -171,6 +174,7 @@ def guest():
             return render_template('guest_login.html.j2')
         user = User(request.form['name'])
         session['user'] = user.to_json()
+        users[user.get_id()] = user
 
         if request.form['room_id'] == "index_placeholder":
             return redirect(url_for('index'))
