@@ -17,6 +17,7 @@ thread_lock = Lock()
 rooms = {}
 users = {}
 
+
 class User():
     def __init__(self, name):
         self.name = name.strip()
@@ -58,6 +59,9 @@ class HandList():
     def remove_hand(self, user):
         if users[user.get_id()].unique_id != user.unique_id:
             return False
+        return self.force_remove_hand(user)
+
+    def force_remove_hand(self, user):
         if user.get_id() in self.current_list:
             self.current_list.remove(user.get_id())
             del self.user_names[user.get_id()]
@@ -87,9 +91,9 @@ class AdminRoom(Namespace):
 
     def on_remove_raise(self, data):
         user = User("")
-        user.id = uuid.UUID(data["user_id"])
-        print("session force lower", user.id)
-        self.room.current_hands[uuid.UUID(data["channel_id"])].remove_hand(user)
+        user.user_id = uuid.UUID(data["user_id"])
+        print("session force lower", user.user_id)
+        self.room.current_hands[uuid.UUID(data["channel_id"])].force_remove_hand(user)
         self.room.trigger_update_admin()
         self.room.trigger_update_guest()
 
@@ -133,16 +137,17 @@ class Room(Namespace):
         self.admin_room.broadcast_to_admin([self.current_hands[x].to_json() for x in self.current_hands])
 
     def trigger_update_guest(self):
-         self.emit("data_update", [self.current_hands[x].to_json() for x in self.current_hands], namespace=self.namespace)
+        guest_data = [self.current_hands[x].to_json() for x in self.current_hands]
+        for x in guest_data:
+            del x["current_id_list"]
+        self.emit("data_update", guest_data, namespace=self.namespace)
 
     def on_connect(self):
         print("con")
         self.trigger_update_guest()
 
-
     def on_disconnect(self):
         print("discon")
-
 
 
 @app.route('/')
@@ -203,7 +208,6 @@ def admin_generate():
     room = Room(request.form['room_name'], request.form['channels'].split(","))
     return redirect(url_for('admin', room_id=room.admin_room.key))
     
-
 
 if __name__ == '__main__':
     socketio.run(app, debug=False, host='0.0.0.0', port=5000)
