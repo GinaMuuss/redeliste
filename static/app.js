@@ -1,4 +1,5 @@
-function update_user_state(data, userid){
+function update_user_state(d, userid){
+    data = d["data"]
     for(var x in data){
         var channel = data[x];
         var found = false;
@@ -39,7 +40,8 @@ function add_user_button(socket, id, name){
     });
 }
 
-function update_channel_lists(data){
+function update_channel_lists(d){
+    data = d["data"]
     console.log(data);
     for(var x in data){
         var channel = data[x];
@@ -51,7 +53,7 @@ function update_channel_lists(data){
             var user = data[x]["current_list"][y];
             var li = document.createElement("li"); 
             li.appendChild(document.createTextNode(user));
-            if(data[x]["current_id_list"]){
+            if(d["admin"]){
                 var span = document.createElement("span"); 
                 span.classList.add("close");
                 span.setAttribute("channel_id", data[x]["channel_id"]);

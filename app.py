@@ -22,20 +22,20 @@ class User():
     def __init__(self, name):
         self.name = name.strip()
         self.user_id = uuid.uuid4() # This identifyies the user
-        self.unique_id = uuid.uuid4() # This is the key only the user is supposed to have
+        self.key = uuid.uuid4() # This is the key only the user is supposed to have
 
     def get_id(self):
         return str(self.user_id)
 
     def to_json(self):
-        return {"name": self.name, "user_id": self.user_id, "unique_id": self.unique_id}
+        return {"name": self.name, "user_id": self.user_id, "key": self.key}
 
     @classmethod
     def from_json(cls, value):
         u = cls("")
         u.name = value["name"].strip()
         u.user_id = value["user_id"]
-        u.unique_id = value["unique_id"]
+        u.key = value["key"]
         return u
 
 
@@ -48,7 +48,7 @@ class HandList():
         self.channel_id = uuid.uuid4()
 
     def add_hand(self, user):
-        if users[user.get_id()].unique_id != user.unique_id:
+        if users[user.get_id()].key != user.key:
             return False
         if self.is_frozen or user.get_id() in self.current_list:
             return False
@@ -57,7 +57,7 @@ class HandList():
         return True
 
     def remove_hand(self, user):
-        if users[user.get_id()].unique_id != user.unique_id:
+        if users[user.get_id()].key != user.key:
             return False
         return self.force_remove_hand(user)
 
@@ -83,7 +83,7 @@ class AdminRoom(Namespace):
         socketio.on_namespace(self)
 
     def broadcast_to_admin(self, data):
-        socketio.emit("data_update", data, namespace=self.namespace)
+        socketio.emit("data_update", {"admin": True, "data": data}, namespace=self.namespace)
 
     def on_connect(self):
         print("admin connected")
@@ -138,9 +138,7 @@ class Room(Namespace):
 
     def trigger_update_guest(self):
         guest_data = [self.current_hands[x].to_json() for x in self.current_hands]
-        for x in guest_data:
-            del x["current_id_list"]
-        self.emit("data_update", guest_data, namespace=self.namespace)
+        self.emit("data_update", {"admin": False, "data": guest_data}, namespace=self.namespace)
 
     def on_connect(self):
         print("con")
