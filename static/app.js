@@ -1,5 +1,6 @@
 function update_user_state(d, userid) {
-    data = d['data'] for (var x in data) {
+    data = d['data'];
+    for (var x in data) {
         var channel = data[x];
         var found = false;
         for (var y in data[x]['current_id_list']) {
@@ -75,12 +76,15 @@ function remove_raise(id, channel_id) {
 
 function change_name() {
     document.getElementById('change_name').style.display = 'none';
-    document.getElementById('save_name').style.display = 'block';
-    document.getElementById('input_text_name').disabled = false;
+    document.getElementById('save_name').style.display = 'inline';
+    document.getElementById('text_name').style.display = 'none';
+    document.getElementById('input_text_name').style.display = 'inline';
 }
 function save_name() {
-    document.getElementById('change_name').style.display = 'block';
+    document.getElementById('change_name').style.display = 'inline';
     document.getElementById('save_name').style.display = 'none';
-    document.getElementById('input_text_name').disabled = true;
+    document.getElementById('text_name').innerText = document.getElementById('input_text_name').value;
+    document.getElementById('text_name').style.display = 'inline';
+    document.getElementById('input_text_name').style.display = 'none';
     socket.emit('name_change_event', {name: document.getElementById('input_text_name').value});
 }

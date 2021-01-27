@@ -48,8 +48,10 @@
             <a href="/guest/{{ room.guest_key }}">Guest Link</a>
         </div>
     {% endif %}
-    <p>Hi <input type="text" id="input_text_name" disabled value='{{ session["user"].name }}'> <button id="change_name" onclick="change_name()" style="display:block;">Change</button><button id="save_name" onclick="save_name()" style="display:none;">Save</button>
+    <div id="name_div">
+    <p>Your name is: <span id="text_name">{{ session["user"].name }}</span> <input type="text" id="input_text_name" value='{{ session["user"].name }}' style="display:none;"> <button id="change_name" onclick="change_name()">Change</button><button id="save_name" onclick="save_name()" style="display:none;">Save</button>
     </p>
+    </div>
     <div id="channel_details" class="channel-flex">
     {% for channel in room.get_channels() %}
         <div id="channel_{{channel.id}}" class="channel-flex-item">
