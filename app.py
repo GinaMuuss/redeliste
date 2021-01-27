@@ -68,6 +68,10 @@ class HandList():
             return True
         return False
 
+    def rename_user(self, user):
+        if user.get_id() in self.current_list:
+            self.user_names[user.get_id()] = user.name
+
     def to_json(self):
         return {"name": self.name, "current_list": [self.user_names[x] for x in self.current_list], "current_id_list": self.current_list, "is_frozen": self.is_frozen, "channel_id": str(self.channel_id)}
 
@@ -130,6 +134,14 @@ class Room(Namespace):
         user = User.from_json(session["user"])
         print("session lower", user.name)
         self.current_hands[uuid.UUID(data["channel_id"])].remove_hand(user)
+        self.trigger_update_admin()
+        self.trigger_update_guest()
+
+    def on_name_change_event(self, data):
+        user = User.from_json(session["user"])
+        user.name = data["name"]
+        for hand in self.current_hands:
+            self.current_hands[hand].rename_user(user)
         self.trigger_update_admin()
         self.trigger_update_guest()
 
