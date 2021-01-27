@@ -140,6 +140,7 @@ class Room(Namespace):
     def on_name_change_event(self, data):
         user = User.from_json(session["user"])
         user.name = data["name"]
+        session["user"] = user.to_json()
         for hand in self.current_hands:
             self.current_hands[hand].rename_user(user)
         self.trigger_update_admin()
