@@ -3,22 +3,23 @@
     <script type="text/javascript" charset="utf-8">
         var is_channel_hand_up = {};
         var socket = undefined;
+        var socket_admin = undefined;
         document.addEventListener("DOMContentLoaded", function(){
             {% if admin %}
                 // Connect to the Socket.IO server.
                 namespace = '/{{ room.admin_room.key }}';
-                socket = io(namespace);
+                socket_admin = io(namespace);
 
-                socket.on('data_update', function(data, cb) {
+                socket_admin.on('data_update', function(data, cb) {
                     update_user_state(data, '{{ session["user"]["user_id"] }}');
                     update_channel_lists(data);
                 });
 
                 user_namespace = '/{{ room.guest_key }}';
-                var socket_user = io(user_namespace);
+                socket = io(user_namespace);
 
                 {% for channel in room.get_channels() %}
-                    add_user_button(socket_user, '{{channel.id}}', '{{channel.name}}');
+                    add_user_button(socket, '{{channel.id}}', '{{channel.name}}');
                 {%- endfor %}
             {% else %}
                 // Connect to the Socket.IO server.
@@ -35,6 +36,7 @@
                 {%- endfor %}
             {% endif %}
         });
+        
     </script>
 {% endblock %}
 {% block body %}
@@ -45,9 +47,9 @@
 
             <a href="/guest/{{ room.guest_key }}">Guest Link</a>
         </div>
-    {% else %}
-        <h2>Hi {{ session["user"].name }}</h2>
     {% endif %}
+    <p>Hi <input type="text" id="input_text_name" disabled value='{{ session["user"].name }}'> <button id="change_name" onclick="change_name()" style="display:block;">Change</button><button id="save_name" onclick="save_name()" style="display:none;">Save</button>
+    </p>
     <div id="channel_details" class="channel-flex">
     {% for channel in room.get_channels() %}
         <div id="channel_{{channel.id}}" class="channel-flex-item">
