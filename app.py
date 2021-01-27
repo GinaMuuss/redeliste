@@ -163,9 +163,9 @@ class Room(Namespace):
 @app.route('/')
 def index():
     if "user" in session:
-        return render_template('index.html.j2')
+        return render_template('index.html')
     else:
-        return render_template('guest_login.html.j2', room_id="index_placeholder")
+        return render_template('guest_login.html', room_id="index_placeholder")
 
 
 @app.route('/guest/<room_id>')
@@ -174,19 +174,19 @@ def guest_room_id(room_id):
         # user is registered
         uu = uuid.UUID(room_id)
         if uu in rooms:
-            return render_template("main.html.j2", room=rooms[uu], admin=False)
+            return render_template("main.html", room=rooms[uu], admin=False)
         else:
             return "Error, room not found", 404
     else:
         # user is new
-        return render_template('guest_login.html.j2', room_id=room_id)
+        return render_template('guest_login.html', room_id=room_id)
 
 
 @app.route('/guest', methods=['GET', 'POST'])
 def guest():
     if request.method == 'POST':
         if request.form['name'] == '':
-            return render_template('guest_login.html.j2')
+            return render_template('guest_login.html')
         user = User(request.form['name'])
         session['user'] = user.to_json()
         users[user.get_id()] = user
@@ -195,7 +195,7 @@ def guest():
             return redirect(url_for('index'))
         if uuid.UUID(request.form['room_id']) in rooms:
             return redirect(url_for('guest_room_id', room_id=request.form['room_id']))
-    return render_template('guest_login.html.j2')
+    return render_template('guest_login.html')
 
 
 @app.route('/admin/<room_id>')
@@ -208,7 +208,7 @@ def admin(room_id):
             room = rooms[x]
             break
     if room:
-        return render_template('main.html.j2', room=room, admin=True)
+        return render_template('main.html', room=room, admin=True)
     else:
         return "Error, room not found", 404
 
