@@ -1,1 +1,1 @@
-flask-socketio
+flask-socketio==5.0.1
