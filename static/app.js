@@ -68,7 +68,7 @@ function update_channel_lists(d) {
 }
 
 function remove_raise(id, channel_id) {
-    socket.emit('remove_raise', {
+    socket_admin.emit('remove_raise', {
         user_id: id,
         channel_id: channel_id
     });
