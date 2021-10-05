@@ -54,6 +54,7 @@ input {
 
 .channel-flex {
     display: inline-flex;
+    flex-wrap: wrap;
 }
 
 .channel-flex-item {
